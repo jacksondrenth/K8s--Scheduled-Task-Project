@@ -8,36 +8,26 @@ kubernetes.config.load_kube_config()
 batch_v1 = kubernetes.client.BatchV1Api()
 
 def apply_jitter(schedule, jitter_seconds):
-    """
-    Adds a random minute offset to a cron schedule.
-    jitter_seconds is the max offset — we pick randomly between 0 and it.
-    """
     if not jitter_seconds:
         return schedule
 
-    jitter_minutes = random.randint(0, max(1, jitter_seconds // 60))
-
-    if jitter_minutes == 0:
-        return schedule
+    jitter_minutes = random.randint(1, max(1, jitter_seconds // 60))  # min 1, not 0
 
     parts = schedule.split()
     if len(parts) != 5:
-        return schedule  # don't touch malformed expressions
+        return schedule
 
     minute_field = parts[0]
 
-    # Only handle simple cases — exact minutes or */n patterns
     if minute_field.isdigit():
         new_minute = (int(minute_field) + jitter_minutes) % 60
         parts[0] = str(new_minute)
     elif minute_field.startswith('*/'):
-        # Can't shift */n cleanly, so prepend a fixed offset minute instead
-        # e.g. */5 with 2 min jitter -> 2-59/5
-        offset = jitter_minutes % int(minute_field[2:])
-        parts[0] = f"{offset}-59/{minute_field[2:]}"
+        interval = int(minute_field[2:])
+        offset = (jitter_minutes % interval) or 1  # ensure non-zero
+        parts[0] = f"{offset}-59/{interval}"
 
-    jittered = ' '.join(parts)
-    return jittered
+    return ' '.join(parts)
 
 @kopf.on.create('ops.io', 'v1', 'scheduledtasks')
 def on_create(spec, name, namespace, logger, **kwargs):
