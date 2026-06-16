@@ -92,7 +92,8 @@ def on_delete(name, namespace, logger, **kwargs):
             raise
 
 
-def build_cronjob(name, namespace, schedule, image, command):
+def build_cronjob(name, namespace, schedule, image, command, jitter=0):
+    final_schedule = apply_jitter(schedule, jitter)
     return {
         "apiVersion": "batch/v1",
         "kind": "CronJob",
@@ -101,7 +102,7 @@ def build_cronjob(name, namespace, schedule, image, command):
             "namespace": namespace,
         },
         "spec": {
-            "schedule": schedule,
+            "schedule": final_schedule,
             "jobTemplate": {
                 "spec": {
                     "template": {
