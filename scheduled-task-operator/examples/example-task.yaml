@@ -6,6 +6,6 @@ metadata:
 spec:
   schedule: "*/1 * * * *"
   image: busybox
-  command: ["echo", "hello from scheduled task operator"]
+  command: ["echo", "operator just reconciled this change"]
   suspended: false
   jitter: 0
