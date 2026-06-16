@@ -1,0 +1,49 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: scheduledtasks.ops.io
+spec:
+  group: ops.io
+  names:
+    kind: ScheduledTask
+    plural: scheduledtasks
+    singular: scheduledtask
+    shortNames:
+      - st
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: ["schedule", "image", "command"]
+              properties:
+                schedule:
+                  type: string
+                  description: "Cron expression e.g. '*/5 * * * *'"
+                image:
+                  type: string
+                  description: "Container image to run"
+                command:
+                  type: array
+                  items:
+                    type: string
+                  description: "Command to run in the container"
+                suspended:
+                  type: boolean
+                  default: false
+                  description: "Pause scheduling without deleting the resource"
+                jitter:
+                  type: integer
+                  default: 0
+                  description: "Random seconds to offset the schedule by"
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+      subresources:
+        status: {}
