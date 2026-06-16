@@ -20,20 +20,23 @@ def on_create(spec, name, namespace, logger, **kwargs):
     if suspended:
         logger.info(f"ScheduledTask '{name}' is suspended, skipping CronJob creation")
         patch_status(name, namespace, {
-            "activeCronJob": False,
-            "suspended": True,
-            "lastScheduledTime": None
+            "activeCronJob": True,
+            "suspended": False,
+            "lastScheduledTime": None,
+            "resolvedSchedule": apply_jitter(schedule, jitter)
         })
         return
 
-    cronjob = build_cronjob(name, namespace, schedule, image, command)
+    jitter = spec.get('jitter', 0)
+    cronjob = build_cronjob(name, namespace, schedule, image, command, jitter)
     batch_v1.create_namespaced_cron_job(namespace=namespace, body=cronjob)
     logger.info(f"CronJob created for '{name}'")
 
     patch_status(name, namespace, {
         "activeCronJob": True,
         "suspended": False,
-        "lastScheduledTime": None
+        "lastScheduledTime": None,
+        "resolvedSchedule": apply_jitter(schedule, jitter)
     })
 
 
@@ -53,8 +56,9 @@ def on_update(spec, name, namespace, logger, **kwargs):
             logger.info(f"ScheduledTask '{name}' suspended, deleting CronJob")
             batch_v1.delete_namespaced_cron_job(name=name, namespace=namespace)
             patch_status(name, namespace, {
-                "activeCronJob": False,
-                "suspended": True,
+                "activeCronJob": True,
+                "suspended": False,
+                "resolvedSchedule": apply_jitter(schedule, jitter)
             })
             return
 
@@ -66,16 +70,19 @@ def on_update(spec, name, namespace, logger, **kwargs):
         patch_status(name, namespace, {
             "activeCronJob": True,
             "suspended": False,
+            "resolvedSchedule": apply_jitter(schedule, jitter)
         })
 
     except kubernetes.client.exceptions.ApiException as e:
         if e.status == 404 and not suspended:
-            cronjob = build_cronjob(name, namespace, schedule, image, command)
+            jitter = spec.get('jitter', 0)
+            cronjob = build_cronjob(name, namespace, schedule, image, command, jitter)
             batch_v1.create_namespaced_cron_job(namespace=namespace, body=cronjob)
             logger.info(f"CronJob created for '{name}'")
             patch_status(name, namespace, {
                 "activeCronJob": True,
                 "suspended": False,
+                "resolvedSchedule": apply_jitter(schedule, jitter)
             })
 
 

@@ -4,8 +4,8 @@ metadata:
   name: hello-world
   namespace: default
 spec:
-  schedule: "*/1 * * * *"
+  schedule: "*/5 * * * *"
   image: busybox
-  command: ["echo", "operator just reconciled this change"]
+  command: ["echo", "hello from scheduled task operator"]
   suspended: false
-  jitter: 0
+  jitter: 120
