@@ -1,0 +1,6 @@
+apiVersion: v2
+name: scheduled-task-operator
+description: A Kubernetes operator that manages ScheduledTask CRDs and reconciles them into CronJobs
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

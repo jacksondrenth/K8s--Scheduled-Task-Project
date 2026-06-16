@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.serviceAccount.name }}
+rules:
+  # Watch and manage ScheduledTask custom resources
+  - apiGroups: ["ops.io"]
+    resources: ["scheduledtasks", "scheduledtasks/status"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+
+  # Create and manage CronJobs
+  - apiGroups: ["batch"]
+    resources: ["cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+  # Kopf needs to create events for logging
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+
+  # Kopf needs to manage its own finalizers
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]

@@ -1,0 +1,11 @@
+replicaCount: 1
+
+image:
+  repository: scheduled-task-operator
+  tag: latest
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: scheduled-task-operator
+
+namespace: default
