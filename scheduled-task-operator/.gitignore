@@ -1,0 +1,13 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Secrets
+scripts/config.py
+
+# Kubernetes secrets
+secrets/
+
+# Helm
+chart/charts/
