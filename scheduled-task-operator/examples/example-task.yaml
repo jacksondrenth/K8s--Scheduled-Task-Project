@@ -1,11 +1,11 @@
 apiVersion: ops.io/v1
 kind: ScheduledTask
 metadata:
-  name: hello-world
+  name: morning-song
   namespace: default
 spec:
-  schedule: "*/5 * * * *"
-  image: busybox
-  command: ["echo", "hello from scheduled task operator"]
+  schedule: "0 7 * * *"
+  image: morning-song:latest
+  command: ["python", "morning_song.py"]
   suspended: false
-  jitter: 120
+  jitter: 0

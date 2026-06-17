@@ -141,6 +141,14 @@ def build_cronjob(name, namespace, schedule, image, command, jitter=0):
                                     "name": name,
                                     "image": image,
                                     "command": command,
+                                    "imagePullPolicy": "Never",
+                                    "envFrom": [
+                                        {
+                                            "secretRef": {
+                                                "name": "spotify-credentials"
+                                            }
+                                        }
+                                    ]
                                 }
                             ],
                         }
