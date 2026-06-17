@@ -4,7 +4,7 @@ metadata:
   name: morning-song
   namespace: default
 spec:
-  schedule: "0 7 * * *"
+  schedule: "0 14 * * *"
   image: morning-song:latest
   command: ["python", "morning_song.py"]
   suspended: false
